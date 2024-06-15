@@ -1,0 +1,25 @@
+postgres:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "postgres"
+  dbname: "postgres"
+  close_ttl: 10s
+
+nats:
+  channel_name: "test_channel"
+  stanClusterId: "1"
+  clientId: "1"
+  ttl: 30s
+
+log:
+  level: "INFO"
+  path: "./logfile.json"
+  lumberjack:
+    max_size: 100
+    max_age: 30
+    max_backups: 5
+    local_time: true
+    compress: true
+
+ttl: 60s

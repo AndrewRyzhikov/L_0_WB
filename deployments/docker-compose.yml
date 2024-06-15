@@ -1,0 +1,28 @@
+version: '3.9'
+
+volumes:
+  db3:
+
+services:
+  flyway:
+    image: flyway/flyway:latest
+    volumes:
+      - ./flyway/conf:/flyway/conf
+      - ./flyway/sql:/flyway/sql
+    command: ["migrate", "-target=${FLYWAY_TARGET}"]
+    env_file:
+      - .env
+    depends_on:
+      - db3
+
+  db3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - db3:/var/lib/postgresql/data
