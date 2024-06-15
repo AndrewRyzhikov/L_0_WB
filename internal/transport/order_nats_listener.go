@@ -13,18 +13,19 @@ import (
 	"L_0_WB/internal/entity"
 )
 
-type OrderListener struct {
+type OrderNatsListener struct {
 	service      *domain.OrderService
 	subscription stan.Subscription
 	config       config.NatsConfig
 }
 
-func NewOrderListener(service *domain.OrderService, config config.NatsConfig) *OrderListener {
-	return &OrderListener{service: service, config: config}
+func NewOrderListener(service *domain.OrderService, config config.NatsConfig) *OrderNatsListener {
+	return &OrderNatsListener{service: service, config: config}
 }
 
-func (l *OrderListener) setOrder() func(msg *stan.Msg) {
+func (l *OrderNatsListener) setOrder() func(msg *stan.Msg) {
 	return func(msg *stan.Msg) {
+		log.Info().Msg("received order message")
 		order := entity.Order{}
 		err := json.Unmarshal(msg.Data, &order)
 		if err != nil {
@@ -41,10 +42,7 @@ func (l *OrderListener) setOrder() func(msg *stan.Msg) {
 	}
 }
 
-func (l *OrderListener) Listen() error {
-
-	fmt.Println(l.config.StanClusterId, l.config.ClientId, l.config.ChannelName)
-
+func (l *OrderNatsListener) Listen() error {
 	sc, err := stan.Connect(l.config.StanClusterId, l.config.ClientId)
 	if err != nil {
 		return fmt.Errorf("stan connect error: %s", err)
@@ -60,6 +58,6 @@ func (l *OrderListener) Listen() error {
 	return nil
 }
 
-func (l *OrderListener) Close() error {
+func (l *OrderNatsListener) Close() error {
 	return l.subscription.Close()
 }

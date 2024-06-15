@@ -14,10 +14,9 @@ services:
       - .env
     depends_on:
       - db3
-
   db3:
     build:
-      context: .
+      context: ../deployments
       dockerfile: Dockerfile
     env_file:
       - .env

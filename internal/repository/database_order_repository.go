@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/rs/zerolog/log"
 
 	"L_0_WB/internal/entity"
 	"L_0_WB/internal/repository/postgres"
@@ -111,22 +112,38 @@ func (d *DataBaseOrderRepository) getItemsInfo(ctx context.Context, order *entit
 	return nil
 }
 
-func (d *DataBaseOrderRepository) SetOrder(ctx context.Context, order entity.Order) error {
+func (d *DataBaseOrderRepository) Get(ctx context.Context, orderUID string) (entity.Order, error) {
+	var order entity.Order
+
+	query := `SELECT * FROM "Order" WHERE "order_uid" = $1`
+
+	if err := d.storage.QueryRowContext(ctx, query, orderUID).Scan(&order); err != nil {
+		return order, fmt.Errorf("error scanning order: %w", err)
+	}
+
+	return order, nil
+}
+
+func (d *DataBaseOrderRepository) Set(ctx context.Context, order entity.Order) error {
 	if err := d.setOrderInfo(ctx, order); err != nil {
 		return fmt.Errorf("connot set order info: %w", err)
 	}
+	log.Info().Msg("successfully set order")
 
 	if err := d.setDeliveryInfo(ctx, order); err != nil {
 		return fmt.Errorf("connot set order info: %w", err)
 	}
+	log.Info().Msg("successfully delivery order")
 
 	if err := d.setPaymentInfo(ctx, order); err != nil {
 		return fmt.Errorf("connot set order info: %w", err)
 	}
+	log.Info().Msg("successfully set payment order")
 
 	if err := d.setItemInfo(ctx, order); err != nil {
 		return fmt.Errorf("connot set order info: %w", err)
 	}
+	log.Info().Msg("successfully set item order")
 
 	return nil
 }

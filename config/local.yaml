@@ -4,13 +4,17 @@ postgres:
   user: "postgres"
   password: "postgres"
   dbname: "postgres"
-  close_ttl: 10s
+  close_ttl: 60s
 
 nats:
-  channel_name: "test_channel"
-  stanClusterId: "1"
+  channel_name: "add_order"
+  stanClusterId: "my_cluster"
   clientId: "1"
-  ttl: 30s
+  ttl: 60s
+
+http_server:
+  port: :8080
+  ttl: 60s
 
 log:
   level: "INFO"

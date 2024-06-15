@@ -3,6 +3,9 @@ package app
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -43,6 +46,7 @@ func StartApp() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create cache repository")
 	}
+	log.Info().Msg("Cache successfully loaded...")
 
 	service := domain.NewOrderService(cacheRepo)
 
@@ -52,9 +56,20 @@ func StartApp() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to listen")
 	}
-
 	log.Info().Msg("Listener started...")
+
+	httpController := transport.NewOrderController(service, cfg.HttpServerConfig)
+	if err = httpController.Start(); err != nil {
+		log.Fatal().Err(err).Msg("Failed to start http controller")
+	}
+	log.Info().Msg("Http controller started...")
+
 	log.Info().Msg("App started...")
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+
+	<-shutdown
 
 	_, cancelFunc := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancelFunc()
@@ -62,6 +77,10 @@ func StartApp() {
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
+		if err = httpController.Shutdown(); err != nil {
+			log.Error().Err(err).Msg("Failed to close http controller")
+		}
+		log.Info().Msg("Http controller stopped...")
 
 		if err = listener.Close(); err != nil {
 			log.Error().Err(err).Msg("Failed to close listener")

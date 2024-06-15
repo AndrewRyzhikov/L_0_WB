@@ -34,10 +34,22 @@ func (repo *CacheOrderRepository) Set(ctx context.Context, order entity.Order) e
 	repo.cache[order.OrderUID] = order
 	defer repo.Unlock()
 
-	err := repo.db.SetOrder(ctx, order)
+	err := repo.db.Set(ctx, order)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (repo *CacheOrderRepository) Get(ctx context.Context, orderUID string) (entity.Order, error) {
+	repo.RLock()
+	defer repo.RUnlock()
+
+	order, ok := repo.cache[orderUID]
+	if !ok {
+		return entity.Order{}, fmt.Errorf("order not found")
+	}
+
+	return order, nil
 }

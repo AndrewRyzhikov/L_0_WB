@@ -11,10 +11,16 @@ import (
 )
 
 type Config struct {
-	PostgresConfig PostgresConfig `yaml:"postgres" env-required:"true"`
-	NatsConfig     NatsConfig     `yaml:"nats" env-required:"true"`
-	LogConfig      LogConfig      `yaml:"log" env-required:"true"`
-	CachingTTl     time.Duration  `yaml:"ttl" env-required:"true"`
+	PostgresConfig   PostgresConfig   `yaml:"postgres" env-required:"true"`
+	NatsConfig       NatsConfig       `yaml:"nats" env-required:"true"`
+	HttpServerConfig HttpServerConfig `yaml:"http_server" env-required:"true"`
+	LogConfig        LogConfig        `yaml:"log" env-required:"true"`
+	CachingTTl       time.Duration    `yaml:"ttl" env-required:"true"`
+}
+
+type HttpServerConfig struct {
+	Port string        `yaml:"port" env-required:"true"`
+	TTL  time.Duration `yaml:"ttl" env-required:"true"`
 }
 
 type PostgresConfig struct {

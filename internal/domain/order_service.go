@@ -15,6 +15,10 @@ func NewOrderService(repo repository.OrderRepository) *OrderService {
 	return &OrderService{repo}
 }
 
-func (o OrderService) Set(ctx context.Context, order entity.Order) error {
+func (o *OrderService) Set(ctx context.Context, order entity.Order) error {
 	return o.repo.Set(ctx, order)
+}
+
+func (o *OrderService) Get(ctx context.Context, orderUID string) (entity.Order, error) {
+	return o.repo.Get(ctx, orderUID)
 }

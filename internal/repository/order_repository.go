@@ -8,4 +8,5 @@ import (
 
 type OrderRepository interface {
 	Set(context.Context, entity.Order) error
+	Get(context.Context, string) (entity.Order, error)
 }
